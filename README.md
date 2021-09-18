@@ -1,2 +1,2 @@
 # UniCoin
-The Crypto for Thriving University Students
+The Coin for Thriving University Students
