@@ -9,17 +9,15 @@ pragma solidity >=0.7.0 <0.9.0;
 contract Ballot {
    
     struct Voter {
-        uint weight; // weight is accumulated by delegation
-        bool voted;  // if true, that person already voted
-        address delegate; // person delegated to
-        uint vote;   // index of the voted proposal
+        uint weight;
+        bool voted;
+        address delegate;
+        uint vote;
     }
 
     struct Proposal {
-        // If you can limit the length to a certain number of bytes, 
-        // always use one of bytes1 to bytes32 because they are much cheaper
-        bytes32 name;   // short name (up to 32 bytes)
-        uint voteCount; // number of accumulated votes
+        bytes32 name;
+        uint voteCount;
     }
 
     address public chairperson;
@@ -37,9 +35,6 @@ contract Ballot {
         voters[chairperson].weight = 1;
 
         for (uint i = 0; i < proposalNames.length; i++) {
-            // 'Proposal({...})' creates a temporary
-            // Proposal object and 'proposals.push(...)'
-            // appends it to the end of 'proposals'.
             proposals.push(Proposal({
                 name: proposalNames[i],
                 voteCount: 0
@@ -47,10 +42,6 @@ contract Ballot {
         }
     }
     
-    /** 
-     * @dev Give 'voter' the right to vote on this ballot. May only be called by 'chairperson'.
-     * @param voter address of voter
-     */
     function giveRightToVote(address voter) public {
         require(
             msg.sender == chairperson,
@@ -76,19 +67,14 @@ contract Ballot {
         while (voters[to].delegate != address(0)) {
             to = voters[to].delegate;
 
-            // We found a loop in the delegation, not allowed.
             require(to != msg.sender, "Found loop in delegation.");
         }
         sender.voted = true;
         sender.delegate = to;
         Voter storage delegate_ = voters[to];
         if (delegate_.voted) {
-            // If the delegate already voted,
-            // directly add to the number of votes
             proposals[delegate_.vote].voteCount += sender.weight;
         } else {
-            // If the delegate did not vote yet,
-            // add to her weight.
             delegate_.weight += sender.weight;
         }
     }
@@ -104,9 +90,6 @@ contract Ballot {
         sender.voted = true;
         sender.vote = proposal;
 
-        // If 'proposal' is out of the range of the array,
-        // this will throw automatically and revert all
-        // changes.
         proposals[proposal].voteCount += sender.weight;
     }
 
